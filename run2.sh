@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 if [ $# != 1 ]; then
     echo "Filename required as argument"

@@ -1,7 +1,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <chrono>
 #include "hidden_orgs_finder.h"
 
 using namespace std;
@@ -35,11 +34,9 @@ HiddenOrgsFinder::HiddenOrgsFinder(string input_filename) {
         k2 = graph_vars[3];
     }
     // cout << "n = " << n << ", e = " << e << ", k1 = " << k1 << ", k2 = " << k2 << '\n';
-    adj.resize(n);
+    variables = 0;
     inv_adj.resize(n);
-    clauses.clear();
     for (int i = 0; i < n; i++) {
-        adj[i].clear();
         for (int j = i+1; j < n; j++) {
             inv_adj[i].insert(j);
         }
@@ -50,7 +47,6 @@ HiddenOrgsFinder::HiddenOrgsFinder(string input_filename) {
         x--, y--;
         a = min(x, y);
         b = max(x, y);
-        adj[a].push_back(b);
         inv_adj[a].erase(b);
     }
     fin.close();
@@ -70,17 +66,19 @@ void HiddenOrgsFinder::write_to_file(string output_filename) {
 }
 
 void HiddenOrgsFinder::create_clauses(int k) {
-    auto start_time = chrono::high_resolution_clock::now();
-    for (int i = 0; i < n; i++) {
-        for (int j : inv_adj[i]) {
-            clauses.push_back(to_str_with_space(-i-1) + to_str_with_space(-j-1));
-        }
-    }
-    variables = n + (n + 1) * (k + 1);
     int s[n+1][k+1];
+    int t[n];
+    for (int i = 0; i < n; i++) {
+        t[i] = variables + i + 1;
+    }
     for (int i = 0; i <= n; i++) {
         for (int j = 0; j <= k; j++) {
-            s[i][j] = n + (i * (k + 1)) + j + 1;
+            s[i][j] = variables + n + (i * (k + 1)) + j + 1;
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        for (int j : inv_adj[i]) {
+            clauses.push_back(to_str_with_space(-t[i]) + to_str_with_space(-t[j]));
         }
     }
     clauses.push_back(to_str_with_space(s[0][0]));
@@ -93,17 +91,20 @@ void HiddenOrgsFinder::create_clauses(int k) {
     for (int i = 1; i <= n; i++) {
         for (int j = 1; j <= k; j++) {
             clauses.push_back(to_str_with_space(-s[i][j]) + to_str_with_space(s[i-1][j]) + to_str_with_space(s[i-1][j-1]));
-            clauses.push_back(to_str_with_space(-s[i][j]) + to_str_with_space(s[i-1][j]) + to_str_with_space(i));
+            clauses.push_back(to_str_with_space(-s[i][j]) + to_str_with_space(s[i-1][j]) + to_str_with_space(t[i-1]));
             clauses.push_back(to_str_with_space(s[i][j]) + to_str_with_space(-s[i-1][j]));
-            clauses.push_back(to_str_with_space(s[i][j]) + to_str_with_space(-s[i-1][j-1]) + to_str_with_space(-i));
+            clauses.push_back(to_str_with_space(s[i][j]) + to_str_with_space(-s[i-1][j-1]) + to_str_with_space(-t[i-1]));
         }
     }
     clauses.push_back(to_str_with_space(s[n][k]));
-    auto end_time = chrono::high_resolution_clock::now();
-    cout << "Time taken to make clauses: " << chrono::duration_cast<chrono::duration<double>>(end_time - start_time).count() << " seconds" << endl;
+    variables += n + (n + 1) * (k + 1);
 }
 
 void HiddenOrgsFinder::create_clauses_no_common() {
     create_clauses(k1);
-    // create_clauses(k2);
+    create_clauses(k2);
+    int lower_limit = n + (n + 1) * (k1 + 1);
+    for (int i = 0; i < n; i++) {
+        clauses.push_back(to_str_with_space(-i - 1) + to_str_with_space(-lower_limit - i - 1));
+    }
 }

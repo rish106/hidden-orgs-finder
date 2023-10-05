@@ -8,7 +8,7 @@ using namespace std;
 
 int main(int argc, char** argv) {
     if (argc > 3) {
-        cout << "Too many arguments, only '.graph' filename is required\n";
+        cout << "Too many arguments, enter '.graph' filename as 1st argument and clique size as 2nd argument(optional)\n";
         return 1;
     } else if (argc < 2) {
         cout << "'.graph' filename is required\n";

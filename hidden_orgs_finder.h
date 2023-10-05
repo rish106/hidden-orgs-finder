@@ -8,7 +8,6 @@ class HiddenOrgsFinder {
 
     private:
     int n, e, k1, k2, variables;
-    vector<vector<int>> adj;
     vector<set<int>> inv_adj;
     vector<string> clauses;
 
