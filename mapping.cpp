@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     }
     ofstream fout(output_filename);
     if (!fout.is_open()) {
-        cerr << "Failed to open the file for writing." << endl;
+        cerr << "Failed to open the file for writing.\n";
         exit(0);
     }
     fout << "#1\n";

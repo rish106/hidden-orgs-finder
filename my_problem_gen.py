@@ -26,7 +26,7 @@ shuffle(V)
 
 first_clique = V[0:K1].copy()
 first_clique.sort()
-print(f"Clique of size {K1}:")
+print(f"Clique of size {K1}")
 print(*first_clique)
 
 if (K2 > 0):

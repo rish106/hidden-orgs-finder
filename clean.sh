@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rm -f *.graph *.mapping *.satinput *.satoutput *.log
+rm -f *.graph *.mapping *.satinput *.satoutput *.log *.out

@@ -33,7 +33,6 @@ HiddenOrgsFinder::HiddenOrgsFinder(string input_filename) {
         k1 = graph_vars[2];
         k2 = graph_vars[3];
     }
-    // cout << "n = " << n << ", e = " << e << ", k1 = " << k1 << ", k2 = " << k2 << '\n';
     variables = 0;
     inv_adj.resize(n);
     for (int i = 0; i < n; i++) {
@@ -55,7 +54,7 @@ HiddenOrgsFinder::HiddenOrgsFinder(string input_filename) {
 void HiddenOrgsFinder::write_to_file(string output_filename) {
     ofstream fout(output_filename);
     if (!fout.is_open()) {
-        cerr << "Failed to open the file for writing." << endl;
+        cerr << "Failed to open the file for writing.\n";
         exit(0);
     }
     fout << "p cnf " << variables << ' ' << clauses.size() << '\n';
