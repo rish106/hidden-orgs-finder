@@ -1,4 +1,4 @@
-#include <set>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -8,13 +8,16 @@ class HiddenOrgsFinder {
 
     private:
     int n, e, k1, k2, variables;
-    vector<set<int>> inv_adj;
-    vector<string> clauses;
+    long long clause_count;
+    string filename;
+    ofstream fout;
+    vector<vector<int>> inv_adj;
+    void create_clauses(int k);
+    void write_first_line();
 
     public:
-    HiddenOrgsFinder(string input_filename);
-    void write_to_file(string output_filename);
-    void create_clauses(int k);
+    HiddenOrgsFinder(string filename);
+    void create_clauses_max(int k);
     void create_clauses_no_common();
 
 };

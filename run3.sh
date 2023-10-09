@@ -11,12 +11,12 @@ n=$(cat "$filename.graph" | head -n 1 | awk '{print $1}')
 
 left=0
 mid=1
-right=$((n))
+right=$(($((n)) + 1))
 
 exec_cmd() {
     echo -n "$mid "
     ./main.out "$filename" $mid
-    minisat "$filename.satinput" "$filename.satoutput" > "$filename.log"
+    ./minisat "$filename.satinput" "$filename.satoutput" > /dev/null
     first_line=$(cat "$filename.satoutput" | head -n 1)
     echo $first_line
 }

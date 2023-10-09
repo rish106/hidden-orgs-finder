@@ -5,11 +5,9 @@
 
 using namespace std;
 
-string to_str_with_space(int n) {
-    return to_string(n) + ' ';
-}
-
-HiddenOrgsFinder::HiddenOrgsFinder(string input_filename) {
+HiddenOrgsFinder::HiddenOrgsFinder(string filename) {
+    this->filename = filename;
+    string input_filename = filename + ".graph";
     fstream fin;
     fin.open(input_filename, ios::in);
     if (!fin) {
@@ -34,11 +32,11 @@ HiddenOrgsFinder::HiddenOrgsFinder(string input_filename) {
         k2 = graph_vars[3];
     }
     variables = 0;
+    clause_count = 0;
+    vector<vector<bool>> edge_complement(n);
     inv_adj.resize(n);
     for (int i = 0; i < n; i++) {
-        for (int j = i+1; j < n; j++) {
-            inv_adj[i].insert(j);
-        }
+        edge_complement[i].assign(n, true);
     }
     int a, b, x, y;
     for (int i = 0; i < e; i++) {
@@ -46,22 +44,27 @@ HiddenOrgsFinder::HiddenOrgsFinder(string input_filename) {
         x--, y--;
         a = min(x, y);
         b = max(x, y);
-        inv_adj[a].erase(b);
+        edge_complement[a][b] = false;
+    }
+    for (int i = 0; i < n; i++) {
+        for (int j = i+1; j < n; j++) {
+            if (edge_complement[i][j]) {
+                clause_count++;
+                inv_adj[i].push_back(j);
+            }
+        }
     }
     fin.close();
 }
 
-void HiddenOrgsFinder::write_to_file(string output_filename) {
-    ofstream fout(output_filename);
+void HiddenOrgsFinder::write_first_line() {
+    string output_filename = filename + ".satinput";
+    fout.open(output_filename);
     if (!fout.is_open()) {
         cerr << "Failed to open the file for writing.\n";
         exit(0);
     }
-    fout << "p cnf " << variables << ' ' << clauses.size() << '\n';
-    for (int i = 0; i < clauses.size(); i++) {
-        fout << clauses[i] << "0\n";
-    }
-    fout.close();
+    fout << "p cnf " << variables << ' ' << clause_count << '\n';
 }
 
 void HiddenOrgsFinder::create_clauses(int k) {
@@ -77,33 +80,48 @@ void HiddenOrgsFinder::create_clauses(int k) {
     }
     for (int i = 0; i < n; i++) {
         for (int j : inv_adj[i]) {
-            clauses.push_back(to_str_with_space(-t[i]) + to_str_with_space(-t[j]));
+            fout << -t[i] << ' ' << -t[j] << " 0\n";
         }
     }
-    clauses.push_back(to_str_with_space(s[0][0]));
-    for (int j = 1; j <= k; j++) {
-        clauses.push_back(to_str_with_space(-s[0][j]));
+    for (int i = 0; i <= n; i++) {
+        fout << s[i][0] << " 0\n";
     }
-    for (int i = 1; i <= n; i++) {
-        clauses.push_back(to_str_with_space(s[i][0]));
+    for (int j = 1; j <= k; j++) {
+        fout << -s[0][j] << " 0\n";
     }
     for (int i = 1; i <= n; i++) {
         for (int j = 1; j <= k; j++) {
-            clauses.push_back(to_str_with_space(-s[i][j]) + to_str_with_space(s[i-1][j]) + to_str_with_space(s[i-1][j-1]));
-            clauses.push_back(to_str_with_space(-s[i][j]) + to_str_with_space(s[i-1][j]) + to_str_with_space(t[i-1]));
-            clauses.push_back(to_str_with_space(s[i][j]) + to_str_with_space(-s[i-1][j]));
-            clauses.push_back(to_str_with_space(s[i][j]) + to_str_with_space(-s[i-1][j-1]) + to_str_with_space(-t[i-1]));
+            fout << -s[i][j] << ' ' << s[i-1][j] << ' ' << s[i-1][j-1] << " 0\n";
+            fout << -s[i][j] << ' ' << s[i-1][j] << ' ' << t[i-1] <<  " 0\n";
+            fout << s[i][j] << ' ' << -s[i-1][j] << " 0\n";
+            fout << s[i][j] << ' ' << -s[i-1][j-1] << ' ' << -t[i-1] << " 0\n";
         }
     }
-    clauses.push_back(to_str_with_space(s[n][k]));
+    fout << s[n][k] << " 0\n";
     variables += n + (n + 1) * (k + 1);
 }
 
+void HiddenOrgsFinder::create_clauses_max(int k) {
+    clause_count += n + k + 2 + 4*n*k;
+    variables += n + (n + 1) * (k + 1);
+    write_first_line();
+    variables = 0;
+    create_clauses(k);
+    fout.close();
+}
+
 void HiddenOrgsFinder::create_clauses_no_common() {
+    int lower_limit = n + (n + 1) * (k1 + 1);
+    clause_count *= 2;
+    clause_count += 3*n + k1 + k2 + 4 + 4*n*k1 + 4*n*k2;
+    variables += n + (n + 1) * (k1 + 1);
+    variables += n + (n + 1) * (k2 + 1);
+    write_first_line();
+    variables = 0;
     create_clauses(k1);
     create_clauses(k2);
-    int lower_limit = n + (n + 1) * (k1 + 1);
     for (int i = 0; i < n; i++) {
-        clauses.push_back(to_str_with_space(-i - 1) + to_str_with_space(-lower_limit - i - 1));
+        fout << -i - 1 << ' ' << -lower_limit - i - 1 << " 0\n";
     }
+    fout.close();
 }

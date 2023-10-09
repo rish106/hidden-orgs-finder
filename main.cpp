@@ -14,14 +14,12 @@ int main(int argc, char** argv) {
         cout << "'.graph' filename is required\n";
         return 1;
     }
-    string input_filename = (string)argv[1] + ".graph";
-    string output_filename = (string)argv[1] + ".satinput";
-    HiddenOrgsFinder* h = new HiddenOrgsFinder(input_filename);
+    string filename = (string)argv[1];
+    HiddenOrgsFinder* h = new HiddenOrgsFinder(filename);
     if (argc == 3) {
         int k = stoi(argv[2]);
-        h->create_clauses(k);
+        h->create_clauses_max(k);
     } else {
         h->create_clauses_no_common();
     }
-    h->write_to_file(output_filename);
 }

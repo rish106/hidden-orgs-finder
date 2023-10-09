@@ -42,7 +42,7 @@ if [[ $problem_num -eq 1 ]] && [[ $exit_code -eq "0" ]]; then
     echo "Creating SAT input" && \
         ./run1.sh "$filename" && \
         echo "Running minisat" && \
-        minisat "$filename.satinput" "$filename.satoutput" > "$filename.log"
+        ./minisat "$filename.satinput" "$filename.satoutput" > /dev/null
     echo "Mapping vertices" && \
         ./run2.sh "$filename" && \
         cat "$filename.mapping"
