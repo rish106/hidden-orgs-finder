@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ $# != 1 ]; then
     echo "Filename required as argument"
@@ -7,33 +7,31 @@ fi
 
 filename="$1"
 
-n=$(cat "$filename.graph" | head -n 1 | awk '{print $1}')
+n=$(($(head -n 1 "$filename.graph" | awk '{print $1}')))
 
 left=0
 mid=1
-right=$(($((n)) + 1))
+right=$((n + 1))
 
 exec_cmd() {
-    echo -n "$mid "
     ./main.out "$filename" $mid
     ./minisat "$filename.satinput" "$filename.satoutput" > /dev/null
-    first_line=$(cat "$filename.satoutput" | head -n 1)
-    echo $first_line
+    first_line=$(head -n 1 "$filename.satoutput")
 }
 
 while [[ $left -lt $right ]]; do
     mid=$(($((left + right)) / 2))
     exec_cmd
-    if [[ $(echo "$first_line" | grep "UNSAT") ]]; then
+    if [[ -z $(echo "$first_line" | grep "^SAT") ]]; then
         right=$((mid))
     else
         left=$((mid + 1))
     fi
 done
 
-if [[ $(echo "$first_line" | grep "UNSAT") ]]; then
+if [[ -z $(echo "$first_line" | grep "^SAT") ]]; then
     mid=$((mid - 1))
     exec_cmd
 fi
 
-./mapping.out "$filename"
+./mapping.out "$filename" 2

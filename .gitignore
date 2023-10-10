@@ -10,3 +10,4 @@ minisat
 *.satinput
 *.satoutput
 *.mapping
+*.zip

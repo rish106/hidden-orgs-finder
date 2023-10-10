@@ -8,8 +8,8 @@ using namespace std;
 HiddenOrgsFinder::HiddenOrgsFinder(string filename) {
     this->filename = filename;
     string input_filename = filename + ".graph";
-    fstream fin;
-    fin.open(input_filename, ios::in);
+    ifstream fin;
+    fin.open(input_filename);
     if (!fin) {
         cerr << "No such file\n";
         exit(0);
@@ -49,10 +49,10 @@ HiddenOrgsFinder::HiddenOrgsFinder(string filename) {
     for (int i = 0; i < n; i++) {
         for (int j = i+1; j < n; j++) {
             if (edge_complement[i][j]) {
-                clause_count++;
                 inv_adj[i].push_back(j);
             }
         }
+        clause_count += inv_adj[i].size();
     }
     fin.close();
 }

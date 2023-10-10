@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ $# != 1 ]; then
     echo "Filename required as argument"
@@ -7,4 +7,4 @@ fi
 
 filename="$1"
 
-./mapping.out "$filename"
+./mapping.out "$filename" 1

@@ -8,6 +8,10 @@ n="$1"
 k1="$2"
 k2="$3"
 
+if [[ -z $k2 ]]; then
+    k2=0
+fi
+
 filename="test"
 
 date_cmd="gdate"
@@ -26,7 +30,7 @@ fi
 ./clean.sh
 
 echo "Generating problem" && \
-    python3 ./my_problem_gen.py $n $k1 $k2 && \
+    python3 ./probgen.py $n $k1 $k2 && \
     echo "Compiling" && \
     ./compile.sh
 
